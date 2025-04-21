@@ -14,7 +14,7 @@ exports.signup = async (req, res, next) => {
     const { username, email, password, fullName, mobile, businessName, businessLocation } = req.body;
 
     // Check if user already exists with the provided email
-    const existingUserByEmail = userModel.findByEmail(email);
+    const existingUserByEmail = await userModel.findByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -23,7 +23,7 @@ exports.signup = async (req, res, next) => {
     }
 
     // Check if username is already taken
-    const existingUserByUsername = userModel.findByUsername(username);
+    const existingUserByUsername = await userModel.findByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -48,7 +48,7 @@ exports.signup = async (req, res, next) => {
     };
 
     // Save the user
-    const user = userModel.createUser(newUser);
+    const user = await userModel.createUser(newUser);
     
     // Generate email verification token
     const verificationToken = tokenHelper.generateRandomToken();
@@ -56,7 +56,7 @@ exports.signup = async (req, res, next) => {
     const expiryDate = tokenHelper.generateExpiryDate(config.emailVerificationExpiry);
     
     // Update user with verification token
-    userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
+    await userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
     
     // Create verification URL
     const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
@@ -104,7 +104,7 @@ exports.signin = async (req, res, next) => {
     const { email, password } = req.body;
 
     // Find user by email
-    const user = userModel.findByEmail(email);
+    const user = await userModel.findByEmail(email);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -155,13 +155,13 @@ exports.signin = async (req, res, next) => {
  * Get User Profile Controller
  * Returns user profile data for authenticated users
  */
-exports.getProfile = (req, res, next) => {
+exports.getProfile = async (req, res, next) => {
   try {
     // Get authenticated user ID from request (set by auth middleware)
     const userId = req.user.id;
     
     // Find user in the database
-    const user = userModel.findById(userId);
+    const user = await userModel.findById(userId);
     
     if (!user) {
       return res.status(404).json({
@@ -207,7 +207,7 @@ exports.verifyEmail = async (req, res, next) => {
     }
 
     // Find user by the verification token
-    const user = userModel.findByEmailVerificationToken(token);
+    const user = await userModel.findByEmailVerificationToken(token);
     
     if (!user) {
       return res.status(400).json({
@@ -217,7 +217,7 @@ exports.verifyEmail = async (req, res, next) => {
     }
     
     // Check if token is expired
-    if (tokenHelper.isExpired(user.emailVerificationExpires)) {
+    if (tokenHelper.isExpired(user.verificationExpires)) {
       return res.status(400).json({
         success: false,
         message: 'Verification link has expired'
@@ -225,7 +225,7 @@ exports.verifyEmail = async (req, res, next) => {
     }
     
     // Mark user's email as verified
-    userModel.verifyEmail(user.id);
+    await userModel.verifyEmail(user.id);
     
     res.status(200).json({
       success: true,
@@ -246,7 +246,7 @@ exports.resendVerification = async (req, res, next) => {
     const { email } = req.body;
     
     // Find user by email
-    const user = userModel.findByEmail(email);
+    const user = await userModel.findByEmail(email);
     
     if (!user) {
       return res.status(404).json({
@@ -269,7 +269,7 @@ exports.resendVerification = async (req, res, next) => {
     const expiryDate = tokenHelper.generateExpiryDate(config.emailVerificationExpiry);
     
     // Update user with new verification token
-    userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
+    await userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
     
     // Create verification URL
     const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
