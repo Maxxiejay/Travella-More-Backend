@@ -84,7 +84,96 @@ const validateSignin = [
   }
 ];
 
+// Validate email only request (for password reset / email verification)
+const validateEmail = [
+  check('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  
+  // Middleware to handle validation results
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false, 
+        errors: errors.array().map(err => ({
+          field: err.param,
+          message: err.msg
+        }))
+      });
+    }
+    next();
+  }
+];
+
+// Validate password reset request
+const validatePasswordReset = [
+  check('token')
+    .trim()
+    .notEmpty().withMessage('Token is required'),
+  
+  check('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  
+  // Middleware to handle validation results
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false, 
+        errors: errors.array().map(err => ({
+          field: err.param,
+          message: err.msg
+        }))
+      });
+    }
+    next();
+  }
+];
+
+// Validate new password request
+const validateNewPassword = [
+  check('password')
+    .trim()
+    .notEmpty().withMessage('Password is required')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+    .matches(/\d/).withMessage('Password must contain at least one number'),
+  
+  check('confirmPassword')
+    .trim()
+    .notEmpty().withMessage('Confirm password is required')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    }),
+  
+  // Middleware to handle validation results
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false, 
+        errors: errors.array().map(err => ({
+          field: err.param,
+          message: err.msg
+        }))
+      });
+    }
+    next();
+  }
+];
+
 module.exports = {
   validateSignup,
-  validateSignin
+  validateSignin,
+  validateEmail,
+  validatePasswordReset,
+  validateNewPassword
 };

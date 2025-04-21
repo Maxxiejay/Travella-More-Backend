@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Information - Auth API</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Auth API</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/api">API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/auth">Auth</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-0">API Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h5>API Details:</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Name
+                                    <span class="badge bg-primary">{{ api_info.name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Version
+                                    <span class="badge bg-info">{{ api_info.version }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Status
+                                    <span class="badge bg-success">{{ api_info.status }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Base URL:</h5>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="http://localhost:8000/api" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('http://localhost:8000/api')">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <h5>Available Routes:</h5>
+                        <div class="list-group mt-3">
+                            <a href="/api/auth" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">/api/auth</h6>
+                                    <small>Authentication</small>
+                                </div>
+                                <p class="mb-1">User authentication and profile management</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3 bg-dark text-center text-white">
+        <div class="container">
+            <p class="mb-0">Authentication API &copy; 2023</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

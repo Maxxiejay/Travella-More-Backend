@@ -5,7 +5,11 @@ const authRoutes = require('./routes/auth');
 const config = require('./config/config');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-frontend-domain.com'] // Replace with your frontend domain in production
+    : '*' // Allow all origins in development
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

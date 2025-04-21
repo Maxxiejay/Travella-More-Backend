@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth API Endpoints</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Auth API</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api">API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/api/auth">Auth</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-0">Authentication API Endpoints</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-4">The authentication API provides endpoints for user registration, login, profile management, and email verification.</p>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Endpoint</th>
+                                        <th>Method</th>
+                                        <th>Description</th>
+                                        <th>Access</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>/api/auth/signup</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Register a new user</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/signin</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Authenticate user & get token</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/profile</code></td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                        <td>Get user profile data</td>
+                                        <td>Private</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/verify-email/:token</code></td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                        <td>Verify email with token</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/resend-verification</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Resend email verification</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/forgot-password</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Request password reset email</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/reset-password/:token</code></td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                        <td>Validate password reset token</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/reset-password/:token</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Reset password with token</td>
+                                        <td>Public</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/auth/test-email</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Send a test email to verify email configuration</td>
+                                        <td>Public</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Authentication</h5>
+                            <p>Private endpoints require a valid JWT token in the Authorization header:</p>
+                            <div class="bg-dark text-light p-3 rounded">
+                                <code>Authorization: Bearer &lt;token&gt;</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">API Testing</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>You can test the API endpoints using the following tools:</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">cURL</h5>
+                                        <p class="card-text">Test API endpoints from the command line</p>
+                                        <div class="bg-dark text-light p-2 rounded small">
+                                            <pre><code>curl -X POST http://localhost:8000/api/auth/signup \
+-H "Content-Type: application/json" \
+-d '{"username": "test", "email": "test@example.com", "password": "Test123"}'</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Postman</h5>
+                                        <p class="card-text">Use Postman for a graphical interface to test API endpoints</p>
+                                        <p><small>Simply import the endpoint URLs and test with various HTTP methods</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3 bg-dark text-center text-white">
+        <div class="container">
+            <p class="mb-0">Authentication API &copy; 2023</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

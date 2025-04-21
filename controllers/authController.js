@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 const jwtHelper = require('../utils/jwtHelper');
+const emailService = require('../utils/emailService');
+const tokenHelper = require('../utils/tokenHelper');
+const config = require('../config/config');
 
 /**
  * User Registration Controller
@@ -46,8 +49,23 @@ exports.signup = async (req, res, next) => {
 
     // Save the user
     const user = userModel.createUser(newUser);
-
-    // Generate JWT token
+    
+    // Generate email verification token
+    const verificationToken = tokenHelper.generateRandomToken();
+    const tokenHash = tokenHelper.hashToken(verificationToken);
+    const expiryDate = tokenHelper.generateExpiryDate(config.emailVerificationExpiry);
+    
+    // Update user with verification token
+    userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
+    
+    // Create verification URL
+    const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
+    
+    // Send verification email - don't wait for it to complete
+    emailService.sendVerificationEmail(user, tokenHash, verificationUrl)
+      .catch(err => console.error('Error sending verification email:', err));
+    
+    // Generate JWT token for authentication
     const payload = {
       user: {
         id: user.id,
@@ -61,13 +79,14 @@ exports.signup = async (req, res, next) => {
     // Return success response with token
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully. Please check your email to verify your account.',
       token,
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
-        fullName: user.fullName
+        fullName: user.fullName,
+        isEmailVerified: false
       }
     });
   } catch (err) {
@@ -122,7 +141,8 @@ exports.signin = async (req, res, next) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        fullName: user.fullName
+        fullName: user.fullName,
+        isEmailVerified: user.isEmailVerified || false
       }
     });
   } catch (err) {
@@ -161,11 +181,295 @@ exports.getProfile = (req, res, next) => {
         mobile: user.mobile,
         businessName: user.businessName,
         businessLocation: user.businessLocation,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        isEmailVerified: user.isEmailVerified
       }
     });
   } catch (err) {
     console.error('Get profile error:', err);
     next(err);
+  }
+};
+
+/**
+ * Verify Email Controller
+ * Verifies a user's email using the token sent to their email
+ */
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification link'
+      });
+    }
+
+    // Find user by the verification token
+    const user = userModel.findByEmailVerificationToken(token);
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification link'
+      });
+    }
+    
+    // Check if token is expired
+    if (tokenHelper.isExpired(user.emailVerificationExpires)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification link has expired'
+      });
+    }
+    
+    // Mark user's email as verified
+    userModel.verifyEmail(user.id);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully'
+    });
+  } catch (err) {
+    console.error('Email verification error:', err);
+    next(err);
+  }
+};
+
+/**
+ * Resend Verification Email Controller
+ * Sends a new verification email to the user
+ */
+exports.resendVerification = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    // Find user by email
+    const user = userModel.findByEmail(email);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Check if email is already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+    
+    // Generate verification token
+    const verificationToken = tokenHelper.generateRandomToken();
+    const tokenHash = tokenHelper.hashToken(verificationToken);
+    const expiryDate = tokenHelper.generateExpiryDate(config.emailVerificationExpiry);
+    
+    // Update user with new verification token
+    userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
+    
+    // Create verification URL
+    const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
+    
+    // Send verification email
+    await emailService.sendVerificationEmail(user, tokenHash, verificationUrl);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Verification email sent successfully'
+    });
+  } catch (err) {
+    console.error('Resend verification error:', err);
+    next(err);
+  }
+};
+
+/**
+ * Forgot Password Controller
+ * Handles password reset requests and sends reset emails
+ */
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    // Find user by email
+    const user = userModel.findByEmail(email);
+    
+    // Even if user is not found, return success for security reasons
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message: 'If your email is registered, you will receive a password reset link shortly'
+      });
+    }
+    
+    // Generate reset token
+    const resetToken = tokenHelper.generateRandomToken();
+    const tokenHash = tokenHelper.hashToken(resetToken);
+    const expiryDate = new Date(Date.now() + config.passwordResetExpiry * 60 * 1000); // Convert minutes to milliseconds
+    
+    // Update user with reset token
+    userModel.setPasswordResetToken(user.id, tokenHash, expiryDate);
+    
+    // Create reset URL
+    const resetUrl = `${config.appUrl}/api/auth/reset-password/${tokenHash}`;
+    
+    // Send password reset email
+    await emailService.sendPasswordResetEmail(user, tokenHash, resetUrl);
+    
+    res.status(200).json({
+      success: true,
+      message: 'If your email is registered, you will receive a password reset link shortly'
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    next(err);
+  }
+};
+
+/**
+ * Validate Reset Token Controller
+ * Checks if a password reset token is valid
+ */
+exports.validateResetToken = (req, res, next) => {
+  try {
+    const { token } = req.params;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset token'
+      });
+    }
+    
+    // Find user by reset token
+    const user = userModel.findByPasswordResetToken(token);
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset token'
+      });
+    }
+    
+    // Check if token is expired
+    if (tokenHelper.isExpired(user.passwordResetExpires)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token has expired'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Valid reset token',
+      email: user.email
+    });
+  } catch (err) {
+    console.error('Validate reset token error:', err);
+    next(err);
+  }
+};
+
+/**
+ * Reset Password Controller
+ * Resets user password with valid token
+ */
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset token'
+      });
+    }
+    
+    // Find user by reset token
+    const user = userModel.findByPasswordResetToken(token);
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset token'
+      });
+    }
+    
+    // Check if token is expired
+    if (tokenHelper.isExpired(user.passwordResetExpires)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token has expired'
+      });
+    }
+    
+    // Generate salt and hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Update user with new password and clear reset token
+    userModel.updateUser(user.id, { password: hashedPassword });
+    userModel.clearPasswordResetToken(user.id);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful'
+    });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    next(err);
+  }
+};
+
+/**
+ * Test Email Service Controller
+ * Sends a test email to verify email configuration
+ */
+exports.testEmailService = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required'
+      });
+    }
+    
+    // Log the email configuration (without sensitive data)
+    console.log('Testing email service with:', {
+      host: config.email.host,
+      port: config.email.port,
+      secure: config.email.secure === true ? 'true' : 'false',
+      from: config.email.from,
+      to: email
+    });
+    
+    // Send test email
+    await emailService.sendTestEmail(email);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Test email sent successfully. Please check your inbox.'
+    });
+  } catch (err) {
+    console.error('Test email error:', err);
+    
+    // Return detailed error for troubleshooting
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send test email',
+      error: {
+        message: err.message,
+        code: err.code,
+        responseCode: err.responseCode,
+        response: err.response
+      }
+    });
   }
 };
