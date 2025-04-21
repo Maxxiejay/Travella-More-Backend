@@ -70,33 +70,25 @@ A full-featured API backend with user authentication and package management func
     "deliveryCity": "string",
     "packageDescription": "string",
     "weightKg": "number",
-    "hasPackageDiscount": "boolean"
+    "hasPackageDiscount": "boolean",
+    "status": "string (optional, defaults to 'pending')"
   }
   ```
-
-- `GET /api/packages` - List all packages for authenticated user (Protected)
-  Returns array of user's packages with their details
 
 - `GET /api/packages/:id` - Get package details by ID (Protected)
-  Returns single package object if user is authorized
+  Returns single package if found, null if not found
+
+- `GET /api/packages` - List all packages for authenticated user (Protected)
+  Returns array of packages sorted by creation date (descending)
 
 - `GET /api/packages/admin/all` - Get all packages (Admin only)
-  Returns array of all packages in system
+  Returns array of all packages sorted by creation date (descending)
 
 - `PUT /api/packages/:id` - Update package details (Protected)
-  ```json
-  {
-    "packageName": "string",
-    "weightKg": "number",
-    "deliveryAddress": "string",
-    "deliveryState": "string",
-    "deliveryCity": "string",
-    "hasPackageDiscount": "boolean"
-  }
-  ```
+  Accepts any valid package fields to update
 
 - `DELETE /api/packages/:id` - Delete package (Protected)
-  Deletes package if user is authorized
+  Returns true if deleted successfully, false otherwise
 
 ## Authentication
 
