@@ -58,11 +58,18 @@ A full-featured API backend with user authentication and package management func
 - `POST /api/packages` - Create new package (Protected)
   ```json
   {
-    "packageName": "string",
-    "weightKg": "number",
+    "pickupAddress": "string",
+    "pickupContactNumber": "string",
+    "pickupCountry": "string",
+    "pickupState": "string",
+    "pickupCity": "string",
     "deliveryAddress": "string",
+    "deliveryContactNumber": "string",
+    "deliveryCountry": "string",
     "deliveryState": "string",
     "deliveryCity": "string",
+    "packageDescription": "string",
+    "weightKg": "number",
     "hasPackageDiscount": "boolean"
   }
   ```
