@@ -1,35 +1,35 @@
 /**
- * In-memory User model
- * This is a simple implementation for MVP purposes
- * In a production environment, this would be replaced with a database model
+ * User Model
+ * Handles CRUD operations for user data using Sequelize
  */
 
-// In-memory storage for users
-let users = [];
-let nextId = 1; // Simple auto-increment ID
+const { Op } = require('sequelize');
+const { User } = require('./index');
+const bcrypt = require('bcrypt');
 
 /**
  * Create a new user
  * @param {Object} userData - The user data
  * @returns {Object} The created user object
  */
-exports.createUser = (userData) => {
-  const now = new Date();
-  
-  const user = {
-    id: nextId++,
-    ...userData,
-    isEmailVerified: false,
-    emailVerificationToken: null,
-    emailVerificationExpires: null,
-    passwordResetToken: null,
-    passwordResetExpires: null,
-    createdAt: now,
-    updatedAt: now
-  };
-  
-  users.push(user);
-  return user;
+exports.createUser = async (userData) => {
+  try {
+    // Create the user (password hashing is handled by model hooks)
+    const user = await User.create({
+      username: userData.username,
+      email: userData.email,
+      password: userData.password,
+      isVerified: false
+    });
+    
+    // Return user without password
+    const userJson = user.toJSON();
+    delete userJson.password;
+    return userJson;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return null;
+  }
 };
 
 /**
@@ -37,8 +37,16 @@ exports.createUser = (userData) => {
  * @param {number} id - The user ID
  * @returns {Object|null} The user object or null if not found
  */
-exports.findById = (id) => {
-  return users.find(user => user.id === id) || null;
+exports.findById = async (id) => {
+  try {
+    const user = await User.findByPk(id, {
+      attributes: { exclude: ['password'] }
+    });
+    return user ? user.toJSON() : null;
+  } catch (error) {
+    console.error('Error finding user by ID:', error);
+    return null;
+  }
 };
 
 /**
@@ -46,8 +54,14 @@ exports.findById = (id) => {
  * @param {string} email - The user's email
  * @returns {Object|null} The user object or null if not found
  */
-exports.findByEmail = (email) => {
-  return users.find(user => user.email === email) || null;
+exports.findByEmail = async (email) => {
+  try {
+    const user = await User.findOne({ where: { email } });
+    return user;
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    return null;
+  }
 };
 
 /**
@@ -55,8 +69,14 @@ exports.findByEmail = (email) => {
  * @param {string} username - The username
  * @returns {Object|null} The user object or null if not found
  */
-exports.findByUsername = (username) => {
-  return users.find(user => user.username === username) || null;
+exports.findByUsername = async (username) => {
+  try {
+    const user = await User.findOne({ where: { username } });
+    return user;
+  } catch (error) {
+    console.error('Error finding user by username:', error);
+    return null;
+  }
 };
 
 /**
@@ -65,21 +85,21 @@ exports.findByUsername = (username) => {
  * @param {Object} userData - The updated user data
  * @returns {Object|null} The updated user object or null if not found
  */
-exports.updateUser = (id, userData) => {
-  const index = users.findIndex(user => user.id === id);
-  
-  if (index === -1) {
+exports.updateUser = async (id, userData) => {
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return null;
+    
+    await user.update(userData);
+    
+    // Return user without password
+    const updatedUser = user.toJSON();
+    delete updatedUser.password;
+    return updatedUser;
+  } catch (error) {
+    console.error('Error updating user:', error);
     return null;
   }
-  
-  const updatedUser = {
-    ...users[index],
-    ...userData,
-    id: users[index].id // Ensure ID doesn't change
-  };
-  
-  users[index] = updatedUser;
-  return updatedUser;
 };
 
 /**
@@ -87,19 +107,30 @@ exports.updateUser = (id, userData) => {
  * @param {number} id - The user ID
  * @returns {boolean} True if user was deleted, false otherwise
  */
-exports.deleteUser = (id) => {
-  const initialLength = users.length;
-  users = users.filter(user => user.id !== id);
-  
-  return initialLength > users.length;
+exports.deleteUser = async (id) => {
+  try {
+    const deleted = await User.destroy({ where: { id } });
+    return deleted > 0;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
 };
 
 /**
  * Get all users (for administrative purposes)
  * @returns {Array} Array of all users
  */
-exports.getAllUsers = () => {
-  return [...users]; // Return a copy of the array
+exports.getAllUsers = async () => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
+    return users.map(user => user.toJSON());
+  } catch (error) {
+    console.error('Error getting all users:', error);
+    return [];
+  }
 };
 
 /**
@@ -107,8 +138,19 @@ exports.getAllUsers = () => {
  * @param {string} token - Email verification token
  * @returns {Object|null} The user object or null if not found
  */
-exports.findByEmailVerificationToken = (token) => {
-  return users.find(user => user.emailVerificationToken === token) || null;
+exports.findByEmailVerificationToken = async (token) => {
+  try {
+    const user = await User.findOne({ 
+      where: { 
+        verificationToken: token,
+        verificationExpires: { [Op.gt]: new Date() }
+      } 
+    });
+    return user;
+  } catch (error) {
+    console.error('Error finding user by verification token:', error);
+    return null;
+  }
 };
 
 /**
@@ -116,8 +158,19 @@ exports.findByEmailVerificationToken = (token) => {
  * @param {string} token - Password reset token
  * @returns {Object|null} The user object or null if not found
  */
-exports.findByPasswordResetToken = (token) => {
-  return users.find(user => user.passwordResetToken === token) || null;
+exports.findByPasswordResetToken = async (token) => {
+  try {
+    const user = await User.findOne({ 
+      where: { 
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: new Date() }
+      } 
+    });
+    return user;
+  } catch (error) {
+    console.error('Error finding user by reset token:', error);
+    return null;
+  }
 };
 
 /**
@@ -127,12 +180,16 @@ exports.findByPasswordResetToken = (token) => {
  * @param {Date} expiryDate - Token expiry date
  * @returns {Object|null} The updated user or null if not found
  */
-exports.setEmailVerificationToken = (userId, token, expiryDate) => {
-  return exports.updateUser(userId, {
-    emailVerificationToken: token,
-    emailVerificationExpires: expiryDate,
-    updatedAt: new Date()
-  });
+exports.setEmailVerificationToken = async (userId, token, expiryDate) => {
+  try {
+    return await exports.updateUser(userId, {
+      verificationToken: token,
+      verificationExpires: expiryDate
+    });
+  } catch (error) {
+    console.error('Error setting verification token:', error);
+    return null;
+  }
 };
 
 /**
@@ -142,12 +199,16 @@ exports.setEmailVerificationToken = (userId, token, expiryDate) => {
  * @param {Date} expiryDate - Token expiry date
  * @returns {Object|null} The updated user or null if not found
  */
-exports.setPasswordResetToken = (userId, token, expiryDate) => {
-  return exports.updateUser(userId, {
-    passwordResetToken: token,
-    passwordResetExpires: expiryDate,
-    updatedAt: new Date()
-  });
+exports.setPasswordResetToken = async (userId, token, expiryDate) => {
+  try {
+    return await exports.updateUser(userId, {
+      resetPasswordToken: token,
+      resetPasswordExpires: expiryDate
+    });
+  } catch (error) {
+    console.error('Error setting reset token:', error);
+    return null;
+  }
 };
 
 /**
@@ -155,13 +216,17 @@ exports.setPasswordResetToken = (userId, token, expiryDate) => {
  * @param {number} userId - The user ID
  * @returns {Object|null} The updated user or null if not found
  */
-exports.verifyEmail = (userId) => {
-  return exports.updateUser(userId, {
-    isEmailVerified: true,
-    emailVerificationToken: null,
-    emailVerificationExpires: null,
-    updatedAt: new Date()
-  });
+exports.verifyEmail = async (userId) => {
+  try {
+    return await exports.updateUser(userId, {
+      isVerified: true,
+      verificationToken: null,
+      verificationExpires: null
+    });
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    return null;
+  }
 };
 
 /**
@@ -169,10 +234,14 @@ exports.verifyEmail = (userId) => {
  * @param {number} userId - The user ID 
  * @returns {Object|null} The updated user or null if not found
  */
-exports.clearPasswordResetToken = (userId) => {
-  return exports.updateUser(userId, {
-    passwordResetToken: null,
-    passwordResetExpires: null,
-    updatedAt: new Date()
-  });
+exports.clearPasswordResetToken = async (userId) => {
+  try {
+    return await exports.updateUser(userId, {
+      resetPasswordToken: null,
+      resetPasswordExpires: null
+    });
+  } catch (error) {
+    console.error('Error clearing reset token:', error);
+    return null;
+  }
 };

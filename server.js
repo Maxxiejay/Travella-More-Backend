@@ -4,6 +4,8 @@ const app = express();
 const authRoutes = require('./routes/auth');
 const packageRoutes = require('./routes/package');
 const config = require('./config/config');
+const { testConnection, sequelize } = require('./config/database');
+const { syncDatabase } = require('./models/index');
 
 // Middleware
 app.use(cors({
@@ -34,8 +36,36 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, '0.0.0.0', () => {
+
+// Initialize the database connection
+const initializeDatabase = async () => {
+  try {
+    // Test database connection
+    const connectionStatus = await testConnection();
+    if (!connectionStatus) {
+      console.error('Database connection failed. Server will start but functionality may be limited.');
+      return false;
+    }
+    
+    // Sync database models
+    const syncStatus = await syncDatabase();
+    if (!syncStatus) {
+      console.error('Database sync failed. Server will start but functionality may be limited.');
+      return false;
+    }
+    
+    console.log('Database initialization successful.');
+    return true;
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    return false;
+  }
+};
+
+// Start server with database initialization
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server running on port ${PORT}`);
+  await initializeDatabase();
 });
 
 module.exports = app;

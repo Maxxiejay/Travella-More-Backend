@@ -1,49 +1,49 @@
 /**
  * Package Model
- * Handles CRUD operations for package data
+ * Handles CRUD operations for package data using Sequelize
  */
 
-let packages = [];
-let packageIdCounter = 1;
+const { Package } = require('./index');
 
 /**
  * Create a new package
  * @param {Object} packageData - Package data
  * @returns {Object} Created package
  */
-const createPackage = (packageData) => {
-  const newPackage = {
-    id: packageIdCounter++,
-    // Pickup Information
-    pickupAddress: packageData.pickupAddress || '',
-    pickupContactNumber: packageData.pickupContactNumber || '',
-    pickupCountry: packageData.pickupCountry || '',
-    pickupState: packageData.pickupState || '',
-    pickupCity: packageData.pickupCity || '',
+const createPackage = async (packageData) => {
+  try {
+    const newPackage = await Package.create({
+      // Pickup Information
+      pickupAddress: packageData.pickupAddress || '',
+      pickupContactNumber: packageData.pickupContactNumber || '',
+      pickupCountry: packageData.pickupCountry || '',
+      pickupState: packageData.pickupState || '',
+      pickupCity: packageData.pickupCity || '',
+      
+      // Delivery Information
+      deliveryAddress: packageData.deliveryAddress || '',
+      deliveryContactNumber: packageData.deliveryContactNumber || '',
+      deliveryCountry: packageData.deliveryCountry || '',
+      deliveryState: packageData.deliveryState || '',
+      deliveryCity: packageData.deliveryCity || '',
+      
+      // Package Details
+      packageDescription: packageData.packageDescription || '',
+      weightKg: packageData.weightKg || 0,
+      
+      // Pricing Information
+      hasPackageDiscount: packageData.hasPackageDiscount || false,
+      
+      // Meta data
+      userId: packageData.userId || null,
+      status: packageData.status || 'pending'
+    });
     
-    // Delivery Information
-    deliveryAddress: packageData.deliveryAddress || '',
-    deliveryContactNumber: packageData.deliveryContactNumber || '',
-    deliveryCountry: packageData.deliveryCountry || '',
-    deliveryState: packageData.deliveryState || '',
-    deliveryCity: packageData.deliveryCity || '',
-    
-    // Package Details
-    packageDescription: packageData.packageDescription || '',
-    weightKg: packageData.weightKg || 0,
-    
-    // Pricing Information
-    hasPackageDiscount: packageData.hasPackageDiscount || false,
-    
-    // Meta data
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userId: packageData.userId || null, // Reference to user if authenticated
-    status: packageData.status || 'pending'
-  };
-  
-  packages.push(newPackage);
-  return newPackage;
+    return newPackage.toJSON();
+  } catch (error) {
+    console.error('Error creating package:', error);
+    return null;
+  }
 };
 
 /**
@@ -51,8 +51,14 @@ const createPackage = (packageData) => {
  * @param {number} id - Package ID
  * @returns {Object|null} Package object or null if not found
  */
-const findById = (id) => {
-  return packages.find(pkg => pkg.id === parseInt(id)) || null;
+const findById = async (id) => {
+  try {
+    const pkg = await Package.findByPk(parseInt(id));
+    return pkg ? pkg.toJSON() : null;
+  } catch (error) {
+    console.error('Error finding package by ID:', error);
+    return null;
+  }
 };
 
 /**
@@ -60,16 +66,33 @@ const findById = (id) => {
  * @param {number} userId - User ID
  * @returns {Array} Array of packages
  */
-const findByUserId = (userId) => {
-  return packages.filter(pkg => pkg.userId === userId);
+const findByUserId = async (userId) => {
+  try {
+    const packages = await Package.findAll({ 
+      where: { userId },
+      order: [['createdAt', 'DESC']]
+    });
+    return packages.map(pkg => pkg.toJSON());
+  } catch (error) {
+    console.error('Error finding packages by user ID:', error);
+    return [];
+  }
 };
 
 /**
  * Get all packages
  * @returns {Array} Array of all packages
  */
-const getAllPackages = () => {
-  return [...packages];
+const getAllPackages = async () => {
+  try {
+    const packages = await Package.findAll({
+      order: [['createdAt', 'DESC']]
+    });
+    return packages.map(pkg => pkg.toJSON());
+  } catch (error) {
+    console.error('Error getting all packages:', error);
+    return [];
+  }
 };
 
 /**
@@ -78,20 +101,17 @@ const getAllPackages = () => {
  * @param {Object} updateData - Updated package data
  * @returns {Object|null} Updated package or null if not found
  */
-const updatePackage = (id, updateData) => {
-  const packageIndex = packages.findIndex(pkg => pkg.id === parseInt(id));
-  if (packageIndex === -1) return null;
-  
-  // Create updated package object
-  const updatedPackage = {
-    ...packages[packageIndex],
-    ...updateData,
-    updatedAt: new Date()
-  };
-  
-  // Replace old package with updated one
-  packages[packageIndex] = updatedPackage;
-  return updatedPackage;
+const updatePackage = async (id, updateData) => {
+  try {
+    const pkg = await Package.findByPk(parseInt(id));
+    if (!pkg) return null;
+    
+    await pkg.update(updateData);
+    return pkg.toJSON();
+  } catch (error) {
+    console.error('Error updating package:', error);
+    return null;
+  }
 };
 
 /**
@@ -99,10 +119,16 @@ const updatePackage = (id, updateData) => {
  * @param {number} id - Package ID
  * @returns {boolean} True if deleted, false otherwise
  */
-const deletePackage = (id) => {
-  const initialLength = packages.length;
-  packages = packages.filter(pkg => pkg.id !== parseInt(id));
-  return packages.length < initialLength;
+const deletePackage = async (id) => {
+  try {
+    const deleted = await Package.destroy({ 
+      where: { id: parseInt(id) } 
+    });
+    return deleted > 0;
+  } catch (error) {
+    console.error('Error deleting package:', error);
+    return false;
+  }
 };
 
 module.exports = {
