@@ -30,6 +30,22 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  fullName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mobile: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  businessName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  businessLocation: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   isVerified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false

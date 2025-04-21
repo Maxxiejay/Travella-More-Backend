@@ -3,7 +3,7 @@
  * Handles CRUD operations for user data using Sequelize
  */
 
-const { Op } = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
 const { User } = require('./index');
 const bcrypt = require('bcrypt');
 
@@ -19,6 +19,10 @@ exports.createUser = async (userData) => {
       username: userData.username,
       email: userData.email,
       password: userData.password,
+      fullName: userData.fullName,
+      mobile: userData.mobile,
+      businessName: userData.businessName,
+      businessLocation: userData.businessLocation,
       isVerified: false
     });
     

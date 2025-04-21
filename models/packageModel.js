@@ -3,6 +3,7 @@
  * Handles CRUD operations for package data using Sequelize
  */
 
+const { Sequelize, Op } = require('sequelize');
 const { Package } = require('./index');
 
 /**

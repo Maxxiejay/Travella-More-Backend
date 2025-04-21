@@ -19,7 +19,10 @@ const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
   dialect: 'postgres',
   logging: false, // Set to console.log to see SQL queries
   dialectOptions: {
-    ssl: false
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // For development purposes
+    }
   },
   pool: {
     max: 5,
