@@ -1,93 +1,122 @@
-# Authentication API
 
-A Node.js API backend with user authentication system for signup and signin functionality.
+# Authentication and Package Management API
+
+A full-featured API backend with user authentication and package management functionality.
 
 ## Features
 
-- User registration with complete profile information
-- User authentication with JWT
-- Protected routes for authenticated users
-- Input validation and sanitization
-- Error handling
+- User Authentication (signup, signin, profile management)
+- Email Verification
+- Password Reset
+- Package Management
+- CORS Support
+- Input Validation
+- Error Handling
+- JWT Authentication
+
+## Tech Stack
+
+- Backend Framework: Express.js & Flask
+- Database: PostgreSQL with Sequelize ORM
+- Authentication: JWT (JSON Web Tokens)
+- Email Service: Nodemailer
+- Validation: Express Validator
 
 ## API Endpoints
 
+### Authentication Endpoints
+
 - `POST /api/auth/signup` - Register a new user
-- `POST /api/auth/signin` - Login and get a token
-- `GET /api/auth/profile` - Get user profile (protected route)
-- `GET /` - API status check
+  ```json
+  {
+    "username": "string",
+    "email": "string",
+    "password": "string",
+    "fullName": "string",
+    "mobile": "string",
+    "businessName": "string",
+    "businessLocation": "string"
+  }
+  ```
 
-## Setup and Installation
+- `POST /api/auth/signin` - Login user
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+  ```
 
-### Local Development
+- `GET /api/auth/profile` - Get user profile (Protected)
+- `GET /api/auth/verify-email/:token` - Verify email address
+- `POST /api/auth/resend-verification` - Resend verification email
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password/:token` - Reset password
 
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Start the development server:
-   ```
-   npm start
-   ```
-4. The API will be available at `http://localhost:8000`
+### Package Management Endpoints
 
-### Deployment on Render
+- `POST /api/packages` - Create new package (Protected)
+- `GET /api/packages` - List all packages (Protected)
+- `GET /api/packages/:id` - Get package details (Protected)
 
-1. Sign up for a [Render](https://render.com) account
-2. Create a new Web Service
-3. Connect your repository or deploy from public Git repository
-4. Configure the following settings:
-   - Environment: Node
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-5. Add environment variables:
-   - `PORT`: `10000`
-   - `JWT_SECRET`: [your-jwt-secret]
-6. Deploy your service
+## Authentication
+
+Protected endpoints require a valid JWT token in the Authorization header:
+```
+Authorization: Bearer <token>
+```
 
 ## Environment Variables
 
-- `PORT` - Port number for the server (default: 8000)
-- `JWT_SECRET` - Secret key for JWT token generation
-- `NODE_ENV` - Environment (development, production)
+- `PORT` - Server port (default: 8000)
+- `JWT_SECRET` - Secret key for JWT tokens
+- `NODE_ENV` - Environment (development/production)
+- `EMAIL_HOST` - SMTP host for email service
+- `EMAIL_PORT` - SMTP port
+- `EMAIL_USER` - SMTP username
+- `EMAIL_PASSWORD` - SMTP password
+- `EMAIL_FROM` - Default sender email
+- `SESSION_SECRET` - Session secret key
 
-## Request Examples
+## Running the Application
 
-### Register a New User
+The application consists of two servers:
 
+1. Flask Frontend Server (Port 5000):
 ```bash
-curl -X POST http://localhost:8000/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "Password123",
-    "fullName": "Test User",
-    "mobile": "1234567890",
-    "businessName": "Test Business",
-    "businessLocation": "Test Location"
-  }'
+gunicorn --bind 0.0.0.0:5000 main:app
 ```
 
-### Login
-
+2. Node.js Backend Server (Port 8000):
 ```bash
-curl -X POST http://localhost:8000/api/auth/signin \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "Password123"
-  }'
+npm install
+node server.js
 ```
 
-### Get User Profile (Protected)
+## Error Handling
 
-```bash
-curl -X GET http://localhost:8000/api/auth/profile \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
+The API uses standard HTTP status codes:
 
-## License
+- 200: Success
+- 400: Bad Request
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Not Found
+- 500: Internal Server Error
 
-MIT
+## Security Features
+
+- Password Hashing (bcrypt)
+- JWT Token Authentication
+- Input Validation and Sanitization
+- CORS Protection
+- Environment Variable Configuration
+- Session Management
+
+## Frontend Integration
+
+The API includes HTML templates for:
+- Home page (`/`)
+- API documentation (`/api`)
+- Authentication endpoints (`/api/auth`)
+- Package management form (`/package-form`)
