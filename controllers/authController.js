@@ -296,7 +296,7 @@ exports.forgotPassword = async (req, res, next) => {
     const { email } = req.body;
     
     // Find user by email
-    const user = userModel.findByEmail(email);
+    const user = await userModel.findByEmail(email);
     
     // Even if user is not found, return success for security reasons
     if (!user) {
@@ -312,7 +312,7 @@ exports.forgotPassword = async (req, res, next) => {
     const expiryDate = new Date(Date.now() + config.passwordResetExpiry * 60 * 1000); // Convert minutes to milliseconds
     
     // Update user with reset token
-    userModel.setPasswordResetToken(user.id, tokenHash, expiryDate);
+    await userModel.setPasswordResetToken(user.id, tokenHash, expiryDate);
     
     // Create reset URL
     const resetUrl = `${config.appUrl}/api/auth/reset-password/${tokenHash}`;
@@ -334,7 +334,7 @@ exports.forgotPassword = async (req, res, next) => {
  * Validate Reset Token Controller
  * Checks if a password reset token is valid
  */
-exports.validateResetToken = (req, res, next) => {
+exports.validateResetToken = async (req, res, next) => {
   try {
     const { token } = req.params;
     
@@ -346,7 +346,7 @@ exports.validateResetToken = (req, res, next) => {
     }
     
     // Find user by reset token
-    const user = userModel.findByPasswordResetToken(token);
+    const user = await userModel.findByPasswordResetToken(token);
     
     if (!user) {
       return res.status(400).json({
@@ -356,7 +356,7 @@ exports.validateResetToken = (req, res, next) => {
     }
     
     // Check if token is expired
-    if (tokenHelper.isExpired(user.passwordResetExpires)) {
+    if (tokenHelper.isExpired(user.resetPasswordExpires)) {
       return res.status(400).json({
         success: false,
         message: 'Reset token has expired'
@@ -391,7 +391,7 @@ exports.resetPassword = async (req, res, next) => {
     }
     
     // Find user by reset token
-    const user = userModel.findByPasswordResetToken(token);
+    const user = await userModel.findByPasswordResetToken(token);
     
     if (!user) {
       return res.status(400).json({
@@ -401,7 +401,7 @@ exports.resetPassword = async (req, res, next) => {
     }
     
     // Check if token is expired
-    if (tokenHelper.isExpired(user.passwordResetExpires)) {
+    if (tokenHelper.isExpired(user.resetPasswordExpires)) {
       return res.status(400).json({
         success: false,
         message: 'Reset token has expired'
@@ -413,8 +413,8 @@ exports.resetPassword = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     
     // Update user with new password and clear reset token
-    userModel.updateUser(user.id, { password: hashedPassword });
-    userModel.clearPasswordResetToken(user.id);
+    await userModel.updateUser(user.id, { password: hashedPassword });
+    await userModel.clearPasswordResetToken(user.id);
     
     res.status(200).json({
       success: true,
