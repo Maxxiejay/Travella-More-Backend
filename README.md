@@ -56,8 +56,40 @@ A full-featured API backend with user authentication and package management func
 ### Package Management Endpoints
 
 - `POST /api/packages` - Create new package (Protected)
-- `GET /api/packages` - List all packages (Protected)
-- `GET /api/packages/:id` - Get package details (Protected)
+  ```json
+  {
+    "packageName": "string",
+    "weightKg": "number",
+    "deliveryAddress": "string",
+    "deliveryState": "string",
+    "deliveryCity": "string",
+    "hasPackageDiscount": "boolean"
+  }
+  ```
+
+- `GET /api/packages` - List all packages for authenticated user (Protected)
+  Returns array of user's packages with their details
+
+- `GET /api/packages/:id` - Get package details by ID (Protected)
+  Returns single package object if user is authorized
+
+- `GET /api/packages/admin/all` - Get all packages (Admin only)
+  Returns array of all packages in system
+
+- `PUT /api/packages/:id` - Update package details (Protected)
+  ```json
+  {
+    "packageName": "string",
+    "weightKg": "number",
+    "deliveryAddress": "string",
+    "deliveryState": "string",
+    "deliveryCity": "string",
+    "hasPackageDiscount": "boolean"
+  }
+  ```
+
+- `DELETE /api/packages/:id` - Delete package (Protected)
+  Deletes package if user is authorized
 
 ## Authentication
 
