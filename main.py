@@ -56,6 +56,11 @@ def auth_index():
         return jsonify(auth_endpoints)
     
     return render_template('auth.html', endpoints=auth_endpoints["endpoints"])
+    
+@app.route('/package-form')
+def package_form():
+    """Render the package form page."""
+    return render_template('package_form.html')
 
 @app.after_request
 def add_cors_headers(response):

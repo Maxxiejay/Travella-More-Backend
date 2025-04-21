@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const authRoutes = require('./routes/auth');
+const packageRoutes = require('./routes/package');
 const config = require('./config/config');
 
 // Middleware
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/packages', packageRoutes);
 
 // Default route
 app.get('/', (req, res) => {
