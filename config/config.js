@@ -27,7 +27,7 @@ module.exports = {
   email: {
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT || 587,
-    secure: process.env.EMAIL_SECURE === 'true',
+    secure: process.env.EMAIL_SECURE,
     user: process.env.EMAIL_USER,
     password: process.env.EMAIL_PASSWORD,
     from: process.env.EMAIL_FROM || 'noreply@example.com'

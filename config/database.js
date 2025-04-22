@@ -1,29 +1,20 @@
-/**
- * Database Configuration
- * Sets up Sequelize ORM with PostgreSQL database
- */
+// config/database.js
 
 const { Sequelize } = require('sequelize');
 
 // Get database connection details from environment variables
-const dbName = process.env.PGDATABASE;
-const dbUser = process.env.PGUSER;
-const dbPassword = process.env.PGPASSWORD;
-const dbHost = process.env.PGHOST;
-const dbPort = process.env.PGPORT;
+const dbName = process.env.DB_NAME;
+const dbUser = process.env.DB_USER;
+const dbPassword = process.env.DB_PASS;
+const dbHost = process.env.DB_HOST;
+const dbPort = process.env.DB_PORT;
 
-// Create a new Sequelize instance
+// Create a new Sequelize instance for MySQL
 const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   port: dbPort,
-  dialect: 'postgres',
-  logging: false, // Set to console.log to see SQL queries
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false // For development purposes
-    }
-  },
+  dialect: 'mysql',
+  logging: false,
   pool: {
     max: 5,
     min: 0,
@@ -36,10 +27,10 @@ const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
+    console.log('✅ Connected to the MySQL database successfully.');
     return true;
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error('❌ Unable to connect to the MySQL database:', error);
     return false;
   }
 };

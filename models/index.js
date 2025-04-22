@@ -2,6 +2,7 @@
  * Models Index
  * Exports all database models and establishes relationships
  */
+require('dotenv').config();
 
 const { sequelize } = require('../config/database');
 const User = require('./User');

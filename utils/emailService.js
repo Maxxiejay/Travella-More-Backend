@@ -2,8 +2,8 @@
  * Email Service
  * Handles all email sending functionality for the application
  */
-const nodemailer = require('nodemailer');
-const config = require('../config/config');
+const nodemailer = require("nodemailer");
+const config = require("../config/config");
 
 /**
  * Create email transporter
@@ -13,8 +13,10 @@ const createTransporter = () => {
   // Check if we have email configuration
   if (config.email.host && config.email.user && config.email.password) {
     // Use the provided email configuration
-    console.log(`Creating email transporter with host: ${config.email.host}, port: ${config.email.port}, secure: ${config.email.secure}`);
-    
+    console.log(
+      `Creating email transporter with host: ${config.email.host}, port: ${config.email.port}, secure: ${config.email.secure}`
+    );
+
     return nodemailer.createTransport({
       host: config.email.host,
       port: parseInt(config.email.port, 10) || 587,
@@ -23,22 +25,24 @@ const createTransporter = () => {
         user: config.email.user,
         pass: config.email.password
       },
-      tls: {
-        // Do not fail on invalid certs
-        rejectUnauthorized: false
-      }
+      debug: true,
+      logger: true,
+      connectionTimeout: 10000,  // 10 seconds
+      greetingTimeout: 10000  // 10 seconds
     });
   } else {
-    console.warn('Email configuration is incomplete. Using Ethereal for testing.');
+    console.warn(
+      "Email configuration is incomplete. Using Ethereal for testing."
+    );
     // For development, use Ethereal (fake SMTP service for testing)
     return nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
+      host: "smtp.ethereal.email",
       port: 587,
       secure: false,
       auth: {
-        user: 'ethereal.user@ethereal.email',
-        pass: 'ethereal_pass'
-      }
+        user: "ethereal.user@ethereal.email",
+        pass: "ethereal_pass",
+      },
     });
   }
 };
@@ -51,7 +55,7 @@ const createTransporter = () => {
 const sendWelcomeEmail = async (user) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: `"${config.appName}" <${config.email.from}>`,
       to: user.email,
@@ -70,20 +74,20 @@ const sendWelcomeEmail = async (user) => {
           <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
           <p>Best regards,<br>The ${config.appName} Team</p>
         </div>
-      `
+      `,
     };
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`Welcome email sent: ${info.messageId}`);
-    
+
     // For development environment with Ethereal, log preview URL
-    if (config.nodeEnv !== 'production') {
+    if (config.nodeEnv !== "production") {
       console.log(`Email preview URL: ${nodemailer.getTestMessageUrl(info)}`);
     }
-    
+
     return info;
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    console.error("Error sending welcome email:", error);
     throw error;
   }
 };
@@ -98,7 +102,7 @@ const sendWelcomeEmail = async (user) => {
 const sendPasswordResetEmail = async (user, resetToken, resetUrl) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: `"${config.appName}" <${config.email.from}>`,
       to: user.email,
@@ -115,19 +119,19 @@ const sendPasswordResetEmail = async (user, resetToken, resetUrl) => {
           <p>This link will expire in 1 hour for security reasons.</p>
           <p>Best regards,<br>The ${config.appName} Team</p>
         </div>
-      `
+      `,
     };
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`Password reset email sent: ${info.messageId}`);
-    
-    if (config.nodeEnv !== 'production') {
+
+    if (config.nodeEnv !== "production") {
       console.log(`Email preview URL: ${nodemailer.getTestMessageUrl(info)}`);
     }
-    
+
     return info;
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error("Error sending password reset email:", error);
     throw error;
   }
 };
@@ -139,10 +143,14 @@ const sendPasswordResetEmail = async (user, resetToken, resetUrl) => {
  * @param {String} verificationUrl - Email verification URL
  * @returns {Promise} - Email sending result
  */
-const sendVerificationEmail = async (user, verificationToken, verificationUrl) => {
+const sendVerificationEmail = async (
+  user,
+  verificationToken,
+  verificationUrl
+) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: `"${config.appName}" <${config.email.from}>`,
       to: user.email,
@@ -158,19 +166,19 @@ const sendVerificationEmail = async (user, verificationToken, verificationUrl) =
           <p>If you didn't create an account with us, please ignore this email.</p>
           <p>Best regards,<br>The ${config.appName} Team</p>
         </div>
-      `
+      `,
     };
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`Verification email sent: ${info.messageId}`);
-    
-    if (config.nodeEnv !== 'production') {
+
+    if (config.nodeEnv !== "production") {
       console.log(`Email preview URL: ${nodemailer.getTestMessageUrl(info)}`);
     }
-    
+
     return info;
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    console.error("Error sending verification email:", error);
     throw error;
   }
 };
@@ -183,16 +191,16 @@ const sendVerificationEmail = async (user, verificationToken, verificationUrl) =
 const sendTestEmail = async (toEmail) => {
   try {
     const transporter = createTransporter();
-    
+
     // Log email config for debugging
-    console.log('Email configuration:', {
+    console.log("Email configuration:", {
       host: config.email.host,
       port: config.email.port,
       secure: config.email.secure,
-      user: config.email.user ? '****' : undefined, // Hide actual credentials
-      from: config.email.from
+      user: config.email.user ? "****" : undefined, // Hide actual credentials
+      from: config.email.from,
     });
-    
+
     const mailOptions = {
       from: `"${config.appName}" <${config.email.from}>`,
       to: toEmail,
@@ -206,19 +214,19 @@ const sendTestEmail = async (toEmail) => {
           <hr />
           <p>Best regards,<br>The ${config.appName} Team</p>
         </div>
-      `
+      `,
     };
-    
+
     const info = await transporter.sendMail(mailOptions);
     console.log(`Test email sent: ${info.messageId}`);
-    
-    if (config.nodeEnv !== 'production') {
+
+    if (config.nodeEnv !== "production") {
       console.log(`Email preview URL: ${nodemailer.getTestMessageUrl(info)}`);
     }
-    
+
     return info;
   } catch (error) {
-    console.error('Error sending test email:', error);
+    console.error("Error sending test email:", error);
     throw error;
   }
 };
@@ -228,5 +236,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendVerificationEmail,
   sendTestEmail,
-  createTransporter
+  createTransporter,
 };
