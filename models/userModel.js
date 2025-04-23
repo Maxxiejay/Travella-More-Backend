@@ -60,14 +60,16 @@ exports.findById = async (id) => {
  */
 exports.findByEmail = async (email) => {
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: { email },
+      attributes: ['id', 'username', 'email', 'password', 'fullName', 'isEmailVerified'] // Add whatever you need
+    });
     return user;
   } catch (error) {
     console.error('Error finding user by email:', error);
     return null;
   }
 };
-
 /**
  * Find a user by username
  * @param {string} username - The username
