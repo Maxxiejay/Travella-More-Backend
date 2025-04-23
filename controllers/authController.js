@@ -106,18 +106,20 @@ exports.signin = async (req, res, next) => {
     // Find user by email
     const user = await userModel.findByEmail(email);
     if (!user) {
+      console.error(`Signin error: User with email ${email} not found`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials email'
       });
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.error(`Signin error: Password mismatch for user with email ${email}`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials pass'
       });
     }
 
@@ -146,7 +148,7 @@ exports.signin = async (req, res, next) => {
       }
     });
   } catch (err) {
-    console.error('Signin error:', err);
+    console.error('Signin error:', err.message);
     next(err);
   }
 };
