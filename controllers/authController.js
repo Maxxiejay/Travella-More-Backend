@@ -34,7 +34,7 @@ exports.signup = async (req, res, next) => {
     // Generate salt and hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
+console.log("on signup", hashedPassword)
     // Create new user object
     const newUser = {
       username,
@@ -114,7 +114,7 @@ exports.signin = async (req, res, next) => {
       });
     }
 
-console.log('Signin debug:', { password, userPasswordHash: user?.password });
+console.log("onpasswin:", user.password) 
     // Compare password
      const isMatch = await bcrypt.compare(password, user.password);
      if (!isMatch) {
