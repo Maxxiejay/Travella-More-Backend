@@ -86,7 +86,7 @@ exports.signup = async (req, res, next) => {
         username: user.username,
         email: user.email,
         fullName: user.fullName,
-        isEmailVerified: false
+        isVerified: false
       }
     });
   } catch (err) {
@@ -149,7 +149,7 @@ res.status(201).json({
     username: userData.username,
     email: userData.email,
     fullName: userData.fullName,
-    isEmailVerified: userData.isVerified
+    isVerified: userData.isVerified
   }
 });
   } catch (err) {
@@ -189,7 +189,7 @@ exports.getProfile = async (req, res, next) => {
         businessName: user.businessName,
         businessLocation: user.businessLocation,
         createdAt: user.createdAt,
-        isEmailVerified: user.isEmailVerified
+        isVerified: user.isVerified
       }
     });
   } catch (err) {
@@ -263,7 +263,7 @@ exports.resendVerification = async (req, res, next) => {
     }
     
     // Check if email is already verified
-    if (user.isEmailVerified) {
+    if (user.isVerified) {
       return res.status(400).json({
         success: false,
         message: 'Email is already verified'
