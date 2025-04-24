@@ -14,7 +14,6 @@ const bcrypt = require('bcrypt');
  */
 exports.createUser = async (userData) => {
   try {
-    // Create the user (password hashing is handled by model hooks)
     const user = await User.create({
       username: userData.username,
       email: userData.email,
@@ -25,11 +24,8 @@ exports.createUser = async (userData) => {
       businessLocation: userData.businessLocation,
       isVerified: false
     });
-    
-    // Return user without password
-    const userJson = user.toJSON();
-    delete userJson.password;
-    return userJson;
+
+    return user; // Return Sequelize instance directly
   } catch (error) {
     console.error('Error creating user:', error);
     return null;

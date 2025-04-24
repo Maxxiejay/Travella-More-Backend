@@ -137,18 +137,21 @@ exports.signin = async (req, res, next) => {
     const token = jwtHelper.generateToken(payload);
 
     // Return success response with token
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        fullName: user.fullName,
-        isEmailVerified: user.isEmailVerified || false
-      }
-    });
+    const userData = user.toJSON();
+delete userData.password;
+
+res.status(201).json({
+  success: true,
+  message: 'User registered successfully. Please check your email to verify your account.',
+  token,
+  user: {
+    id: userData.id,
+    username: userData.username,
+    email: userData.email,
+    fullName: userData.fullName,
+    isEmailVerified: userData.isVerified
+  }
+});
   } catch (err) {
     console.error('Signin error:', err.message);
     next(err);
