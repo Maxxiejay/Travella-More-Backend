@@ -114,7 +114,7 @@ exports.signin = async (req, res, next) => {
       });
     }
 
-console.log("onpasswin:", user.password) 
+console.log("on signin:", user.password) 
     // Compare password
      const isMatch = await bcrypt.compare(password, user.password);
      if (!isMatch) {
@@ -125,7 +125,7 @@ console.log("onpasswin:", user.password)
        });
      }
 
-    // Generate JWT token
+    // Generate JWT toke  n
     const payload = {
       user: {
         id: user.id,
