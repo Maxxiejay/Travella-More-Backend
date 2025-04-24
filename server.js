@@ -10,8 +10,9 @@ const { syncDatabase } = require('./models/index');
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://travella-more.netlify.app'] // Replace with your frontend domain in production
-    : '*' // Allow all origins in development
+    ? ['https://travella-more.netlify.app']
+    : '*',
+    credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
