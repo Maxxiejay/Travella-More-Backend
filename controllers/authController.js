@@ -102,10 +102,6 @@ exports.signup = async (req, res, next) => {
 exports.signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-return res.status(200).json({
-  email: email
-}
-)
     // Find user by email
     const user = await userModel.findByEmail(email);
     if (!user) {
