@@ -102,7 +102,7 @@ exports.signup = async (req, res, next) => {
 exports.signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
+return email 
     // Find user by email
     const user = await userModel.findByEmail(email);
     if (!user) {
@@ -114,14 +114,14 @@ exports.signin = async (req, res, next) => {
     }
 
     // Compare password
-    // const isMatch = await bcrypt.compare(password, user.password);
-   //  if (!isMatch) {
-     //  console.error(`Signin error: Password mismatch for user with email ${email}`);
-   //    return res.status(401).json({
-       //  success: false,
-        // message: 'Invalid credentials pass'
-      // });
-  //   }
+     const isMatch = await bcrypt.compare(password, user.password);
+     if (!isMatch) {
+       console.error(`Signin error: Password mismatch for user with email ${email}`);
+      return res.status(401).json({
+         success: false,
+         message: 'Invalid credentials pass'
+       });
+     }
 
     // Generate JWT token
     const payload = {
