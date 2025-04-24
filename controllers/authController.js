@@ -281,7 +281,7 @@ exports.resendVerification = async (req, res, next) => {
     await userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
     
     // Create verification URL
-    const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
+    const verificationUrl = `${config.appUrl}/verify-email/${tokenHash}`;
     
     // Send verification email
     await emailService.sendVerificationEmail(user, tokenHash, verificationUrl);
@@ -324,7 +324,7 @@ exports.forgotPassword = async (req, res, next) => {
     await userModel.setPasswordResetToken(user.id, tokenHash, expiryDate);
     
     // Create reset URL
-    const resetUrl = `${config.appUrl}/api/auth/reset-password/${tokenHash}`;
+    const resetUrl = `${config.appUrl}/reset-password/${tokenHash}`;
     
     // Send password reset email
     await emailService.sendPasswordResetEmail(user, tokenHash, resetUrl);
