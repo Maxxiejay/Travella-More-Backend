@@ -58,7 +58,7 @@ const hashedPassword = await bcrypt.hash(password, salt);
     await userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
     
     // Create verification URL
-    const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
+    const verificationUrl = `${config.appUrl}/verify-email/${tokenHash}`;
     
     // Send verification email - don't wait for it to complete
     emailService.sendVerificationEmail(user, tokenHash, verificationUrl)
@@ -85,6 +85,8 @@ const hashedPassword = await bcrypt.hash(password, salt);
         username: user.username,
         email: user.email,
         fullName: user.fullName,
+        businessName: user.businessName, 
+        businessLocation: user.businessLocation,
         isVerified: false
       }
     });
@@ -109,7 +111,7 @@ exports.signin = async (req, res, next) => {
       console.error(`Signin error: User with email ${email} not found`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials email'
+        message: 'Invalid credentials'
       });
     }
 
@@ -117,10 +119,9 @@ console.log("on signin:", user.password)
     // Compare password
      const isMatch = await bcrypt.compare(password, user.password);
      if (!isMatch) {
-       console.error(`Signin error: Password mismatch for user with email ${email}`);
       return res.status(401).json({
          success: false,
-         message: 'Invalid credentials pass'
+         message: 'Invalid credentials'
        });
      }
 
@@ -141,13 +142,15 @@ delete userData.password;
 
 res.status(201).json({
   success: true,
-  message: 'User registered successfully. Please check your email to verify your account.',
+  message: 'Login Successful!',
   token,
   user: {
     id: userData.id,
     username: userData.username,
     email: userData.email,
     fullName: userData.fullName,
+    businessName: userData.businessName, 
+    businessLocation: userData.businessLocation,
     isVerified: userData.isVerified
   }
 });
