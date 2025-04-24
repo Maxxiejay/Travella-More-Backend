@@ -105,6 +105,10 @@ exports.signin = async (req, res, next) => {
     
     // Find user by email
     const user = await userModel.findByEmail(email);
+    return res.json({
+      password: password, 
+      user: user
+    }) 
     if (!user) {
       console.error(`Signin error: User with email ${email} not found`);
       return res.status(401).json({
