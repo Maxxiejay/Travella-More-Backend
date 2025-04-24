@@ -24,8 +24,8 @@ exports.createUser = async (userData) => {
       businessLocation: userData.businessLocation,
       isVerified: false
     });
-
-    return user; // Return Sequelize instance directly
+    
+    return user.get({ plain: true });
   } catch (error) {
     console.error('Error creating user:', error);
     return null;
