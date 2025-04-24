@@ -58,7 +58,7 @@ exports.findByEmail = async (email) => {
   try {
     const user = await User.findOne({
       where: { email },
-      attributes: ['id', 'username', 'email', 'password', 'fullName', 'isEmailVerified'] // Add whatever you need
+      attributes: ['id', 'username', 'email', 'password', 'fullName', 'mobile', 'businessName', 'businessLocation', 'isVerified'] // Add whatever you need
     });
     return user;
   } catch (error) {
