@@ -108,7 +108,7 @@ exports.signin = async (req, res, next) => {
       console.error(`Signin error: User with email ${email} not found`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials email'
       });
     }
 
@@ -118,7 +118,7 @@ exports.signin = async (req, res, next) => {
        console.error(`Signin error: Password mismatch for user with email ${email}`);
       return res.status(401).json({
          success: false,
-         message: 'Invalid credentials'
+         message: 'Invalid credentials pass'
        });
      }
 
