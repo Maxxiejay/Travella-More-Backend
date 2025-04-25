@@ -30,16 +30,15 @@ exports.signup = async (req, res, next) => {
         message: 'Username already taken'
       });
     }
-
-    // Generate salt and hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Generate salt and hash the password  
+const salt = await bcrypt.genSalt(10);  
+const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user object
     const newUser = {
       username,
       email,
-      password: hashedPassword,
+      password: hashedPassword ,
       fullName,
       mobile,
       businessName,
@@ -59,7 +58,7 @@ exports.signup = async (req, res, next) => {
     await userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
     
     // Create verification URL
-    const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
+    const verificationUrl = `${config.appUrl}/verify-email/${tokenHash}`;
     
     // Send verification email - don't wait for it to complete
     emailService.sendVerificationEmail(user, tokenHash, verificationUrl)
@@ -86,7 +85,9 @@ exports.signup = async (req, res, next) => {
         username: user.username,
         email: user.email,
         fullName: user.fullName,
-        isEmailVerified: false
+        businessName: user.businessName, 
+        businessLocation: user.businessLocation,
+        isVerified: false
       }
     });
   } catch (err) {
@@ -102,28 +103,29 @@ exports.signup = async (req, res, next) => {
 exports.signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
+    
     // Find user by email
     const user = await userModel.findByEmail(email);
+    
     if (!user) {
       console.error(`Signin error: User with email ${email} not found`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials email'
+        message: 'Invalid credentials'
       });
     }
 
+console.log("on signin:", user.password) 
     // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.error(`Signin error: Password mismatch for user with email ${email}`);
+     const isMatch = await bcrypt.compare(password, user.password);
+     if (!isMatch) {
       return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials pass'
-      });
-    }
+         success: false,
+         message: 'Invalid credentials'
+       });
+     }
 
-    // Generate JWT token
+    // Generate JWT toke  n
     const payload = {
       user: {
         id: user.id,
@@ -135,18 +137,23 @@ exports.signin = async (req, res, next) => {
     const token = jwtHelper.generateToken(payload);
 
     // Return success response with token
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        fullName: user.fullName,
-        isEmailVerified: user.isEmailVerified || false
-      }
-    });
+    const userData = user.toJSON();
+delete userData.password;
+
+res.status(201).json({
+  success: true,
+  message: 'Login Successful!',
+  token,
+  user: {
+    id: userData.id,
+    username: userData.username,
+    email: userData.email,
+    fullName: userData.fullName,
+    businessName: userData.businessName, 
+    businessLocation: userData.businessLocation,
+    isVerified: userData.isVerified
+  }
+});
   } catch (err) {
     console.error('Signin error:', err.message);
     next(err);
@@ -184,7 +191,7 @@ exports.getProfile = async (req, res, next) => {
         businessName: user.businessName,
         businessLocation: user.businessLocation,
         createdAt: user.createdAt,
-        isEmailVerified: user.isEmailVerified
+        isVerified: user.isVerified
       }
     });
   } catch (err) {
@@ -258,7 +265,7 @@ exports.resendVerification = async (req, res, next) => {
     }
     
     // Check if email is already verified
-    if (user.isEmailVerified) {
+    if (user.isVerified) {
       return res.status(400).json({
         success: false,
         message: 'Email is already verified'
@@ -274,7 +281,7 @@ exports.resendVerification = async (req, res, next) => {
     await userModel.setEmailVerificationToken(user.id, tokenHash, expiryDate);
     
     // Create verification URL
-    const verificationUrl = `${config.appUrl}/api/auth/verify-email/${tokenHash}`;
+    const verificationUrl = `${config.appUrl}/verify-email/${tokenHash}`;
     
     // Send verification email
     await emailService.sendVerificationEmail(user, tokenHash, verificationUrl);
@@ -317,7 +324,7 @@ exports.forgotPassword = async (req, res, next) => {
     await userModel.setPasswordResetToken(user.id, tokenHash, expiryDate);
     
     // Create reset URL
-    const resetUrl = `${config.appUrl}/api/auth/reset-password/${tokenHash}`;
+    const resetUrl = `${config.appUrl}/reset-password/${tokenHash}`;
     
     // Send password reset email
     await emailService.sendPasswordResetEmail(user, tokenHash, resetUrl);

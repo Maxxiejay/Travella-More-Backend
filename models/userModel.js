@@ -14,7 +14,6 @@ const bcrypt = require('bcrypt');
  */
 exports.createUser = async (userData) => {
   try {
-    // Create the user (password hashing is handled by model hooks)
     const user = await User.create({
       username: userData.username,
       email: userData.email,
@@ -26,10 +25,7 @@ exports.createUser = async (userData) => {
       isVerified: false
     });
     
-    // Return user without password
-    const userJson = user.toJSON();
-    delete userJson.password;
-    return userJson;
+    return user.get({ plain: true });
   } catch (error) {
     console.error('Error creating user:', error);
     return null;
@@ -62,7 +58,7 @@ exports.findByEmail = async (email) => {
   try {
     const user = await User.findOne({
       where: { email },
-      attributes: ['id', 'username', 'email', 'password', 'fullName', 'isEmailVerified'] // Add whatever you need
+      attributes: ['id', 'username', 'email', 'password', 'fullName', 'mobile', 'businessName', 'businessLocation', 'isVerified'] // Add whatever you need
     });
     return user;
   } catch (error) {

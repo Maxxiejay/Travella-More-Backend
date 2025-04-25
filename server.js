@@ -9,10 +9,10 @@ const { syncDatabase } = require('./models/index');
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://travella-more.netlify.app', 'http://localhost:5173'] // Replace with your frontend domain
-    : 'http://localhost:5173', // Allow only this origin in development
-  credentials: true // Allow cookies if needed
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://travella-more.netlify.app']
+    : '*',
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
 }));
 // Allow preflight requests for all routes
 app.use(express.json());
