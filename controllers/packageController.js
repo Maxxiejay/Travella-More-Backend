@@ -76,15 +76,13 @@ exports.getPackage = (req, res, next) => {
  * Get User Packages Controller
  * Returns all packages for the authenticated user
  */
-exports.getUserPackages = (req, res, next) => {
+exports.getUserPackages = async (req, res, next) => {
   try {
-    // Get user ID from authenticated user
     const userId = req.user.id;
-    
-    // Find packages by user ID
-    const packages = packageModel.findByUserId(userId);
-    
-    // Return packages data
+
+    // Await the async function
+    const packages = await packageModel.findByUserId(userId);
+
     res.status(200).json({
       success: true,
       count: packages.length,
