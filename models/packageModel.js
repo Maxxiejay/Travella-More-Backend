@@ -40,13 +40,13 @@ const createPackage = async (packageData) => {
       status: packageData.status || 'pending'
     });
     
-    return newPackage.toJSON();
+    // Return the full instance (not .toJSON())
+    return newPackage;
   } catch (error) {
     console.error('Error creating package:', error);
     return null;
   }
 };
-
 /**
  * Find a package by ID
  * @param {number} id - Package ID

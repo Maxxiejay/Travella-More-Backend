@@ -18,7 +18,11 @@ exports.createPackage = async (req, res, next) => {
     }
     
     // Create the new package
-    const newPackage = packageModel.createPackage(packageData);
+    const newPackage = await packageModel.createPackage(packageData);
+    
+    // Format and update the packageCode (e.g., PKG-001)
+    const formattedCode = `PKG-${String(newPackage.id).padStart(3, '0')}`;
+    await newPackage.update({ packageCode: formattedCode });
     
     // Return success response
     res.status(201).json({
@@ -31,7 +35,6 @@ exports.createPackage = async (req, res, next) => {
     next(err);
   }
 };
-
 /**
  * Get Package Controller
  * Returns a specific package by ID

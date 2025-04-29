@@ -13,6 +13,11 @@ const Package = sequelize.define('Package', {
     primaryKey: true,
     autoIncrement: true
   },
+  packageCode: {
+  type: DataTypes.STRING,
+  unique: true,
+  allowNull: true
+},
   // Pickup Information
   pickupAddress: {
     type: DataTypes.TEXT,
