@@ -87,7 +87,8 @@ const hashedPassword = await bcrypt.hash(password, salt);
         fullName: user.fullName,
         businessName: user.businessName, 
         businessLocation: user.businessLocation,
-        isVerified: false
+        isVerified: false, 
+        role: user.role
       }
     });
   } catch (err) {
@@ -151,7 +152,8 @@ res.status(201).json({
     fullName: userData.fullName,
     businessName: userData.businessName, 
     businessLocation: userData.businessLocation,
-    isVerified: userData.isVerified
+    isVerified: userData.isVerified, 
+    role: userData.role
   }
 });
   } catch (err) {
@@ -191,7 +193,8 @@ exports.getProfile = async (req, res, next) => {
         businessName: user.businessName,
         businessLocation: user.businessLocation,
         createdAt: user.createdAt,
-        isVerified: user.isVerified
+        isVerified: user.isVerified, 
+        role: user.role
       }
     });
   } catch (err) {
