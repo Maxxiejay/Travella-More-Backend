@@ -3,6 +3,7 @@ const cors = require('cors');
 const app = express();
 const authRoutes = require('./routes/auth');
 const packageRoutes = require('./routes/package');
+const userRoutes = require('./routes/user');
 const config = require('./config/config');
 const { testConnection, sequelize } = require('./config/database');
 const { syncDatabase } = require('./models/index');
@@ -20,6 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
+
+app.use('/api/users', userRoutes);
 
 // Default route
 app.get('/', (req, res) => {
