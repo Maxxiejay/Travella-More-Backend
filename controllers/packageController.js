@@ -98,7 +98,7 @@ exports.getUserPackages = async (req, res, next) => {
  * Get All Packages Controller (Admin only)
  * Returns all packages in the system
  */
-exports.getAllPackages = (req, res, next) => {
+exports.getAllPackages = async (req, res, next) => {
   try {
     // Check if user is admin
     if (req.user.role !== 'admin') {
@@ -108,10 +108,9 @@ exports.getAllPackages = (req, res, next) => {
       });
     }
     
-    // Get all packages
-    const packages = packageModel.getAllPackages();
+    // Await the async function
+    const packages = await packageModel.getAllPackages();
     
-    // Return packages data
     res.status(200).json({
       success: true,
       count: packages.length,
@@ -122,7 +121,6 @@ exports.getAllPackages = (req, res, next) => {
     next(err);
   }
 };
-
 /**
  * Update Package Controller
  * Updates an existing package
