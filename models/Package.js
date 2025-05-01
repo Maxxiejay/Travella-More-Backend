@@ -80,7 +80,7 @@ const Package = sequelize.define('Package', {
   
   // Status
   status: {
-    type: DataTypes.ENUM('pending', 'shipped', 'delivered', 'cancelled'),
+    type: DataTypes.ENUM('pending', 'in_transit', 'delivered', 'cancelled'),
     defaultValue: 'pending'
   }
 }, {
