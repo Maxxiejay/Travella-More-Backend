@@ -69,7 +69,8 @@ const hashedPassword = await bcrypt.hash(password, salt);
       user: {
         id: user.id,
         email: user.email,
-        username: user.username
+        username: user.username, 
+        role: user.role
       }
     };
 
@@ -131,7 +132,8 @@ exports.signin = async (req, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        username: user.username
+        username: user.username, 
+        role: user.role
       }
     };
 
