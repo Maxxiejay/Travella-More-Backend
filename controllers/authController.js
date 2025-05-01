@@ -116,7 +116,7 @@ exports.signin = async (req, res, next) => {
       });
     }
 
-console.log("on signin:", user.password) 
+// console.log("on signin:", user.password) 
     // Compare password
      const isMatch = await bcrypt.compare(password, user.password);
      if (!isMatch) {
