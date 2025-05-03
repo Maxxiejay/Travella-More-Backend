@@ -4,30 +4,45 @@
  */
 const packageModel = require('../models/packageModel');
 
-/**
- * Create Package Controller
- * Creates a new package with the provided details
- */
 exports.createPackage = async (req, res, next) => {
   try {
     const packageData = req.body;
     
-    // Add user ID from authenticated user if available
-    if (req.user) {
-      packageData.userId = req.user.id;
+    if (!req.user) return res.status(401).json({ success: false, message: 'Unauthorized' });
+    
+    const user = await User.findByPk(req.user.id, { include: 'subscription' });
+    
+    // Check if subscription has expired
+    if (user.subscriptionStatus === 'active' && new Date() > user.subscriptionExpiresAt) {
+      user.subscriptionStatus = 'none';
+      user.subscriptionExpiresAt = null;
+      await user.save();
     }
     
-    // Create the new package
+    let price = 7000;
+    
+    // First-time user discount
+    const sentPackagesCount = await Package.count({ where: { userId: user.id } });
+    
+    if (sentPackagesCount === 0) {
+      price = 4500;
+    } else if (user.subscriptionStatus === 'active' && user.subscription.packagesUsed < 15) {
+      price = 4500;
+    }
+    
+    packageData.userId = user.id;
+    packageData.price = price;
+    packageData.status = 'unpaid';
+    
     const newPackage = await packageModel.createPackage(packageData);
     
-    // Format and update the packageCode (e.g., PKG-001)
+    // Format packageCode (e.g., PKG-001)
     const formattedCode = `PKG-${String(newPackage.id).padStart(3, '0')}`;
     await newPackage.update({ packageCode: formattedCode });
     
-    // Return success response
     res.status(201).json({
       success: true,
-      message: 'Package created successfully',
+      message: 'Package created successfully. Payment required.',
       package: newPackage
     });
   } catch (err) {

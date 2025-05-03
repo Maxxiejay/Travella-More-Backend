@@ -80,7 +80,7 @@ const Package = sequelize.define('Package', {
   
   // Status
   status: {
-    type: DataTypes.ENUM('pending', 'in_transit', 'delivered', 'cancelled'),
+    type: DataTypes.ENUM('pending', 'unpaid', 'in_transit', 'delivered', 'cancelled'),
     defaultValue: 'pending'
   }, 
   cost: {
@@ -88,7 +88,16 @@ const Package = sequelize.define('Package', {
   }, 
   usedWithSubscription: {
     type: DataTypes.BOOLEAN
-  } 
+  }, 
+  // Payment Tracking
+paystackReference: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  paymentStatus: {
+    type: DataTypes.ENUM('unpaid', 'paid'),
+    defaultValue: 'unpaid'
+  }
 }, {
   timestamps: true
 });
