@@ -22,7 +22,8 @@ exports.createUser = async (userData) => {
       mobile: userData.mobile,
       businessName: userData.businessName,
       businessLocation: userData.businessLocation,
-      isVerified: false
+      isVerified: false, 
+      role: 'user'
     });
     
     return user.get({ plain: true });
@@ -58,7 +59,7 @@ exports.findByEmail = async (email) => {
   try {
     const user = await User.findOne({
       where: { email },
-      attributes: ['id', 'username', 'email', 'password', 'fullName', 'mobile', 'businessName', 'businessLocation', 'isVerified'] // Add whatever you need
+      attributes: ['id', 'username', 'email', 'password', 'fullName', 'mobile', 'businessName', 'businessLocation', 'isVerified', 'role'] // Add whatever you need
     });
     return user;
   } catch (error) {

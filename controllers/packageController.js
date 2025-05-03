@@ -18,7 +18,11 @@ exports.createPackage = async (req, res, next) => {
     }
     
     // Create the new package
-    const newPackage = packageModel.createPackage(packageData);
+    const newPackage = await packageModel.createPackage(packageData);
+    
+    // Format and update the packageCode (e.g., PKG-001)
+    const formattedCode = `PKG-${String(newPackage.id).padStart(3, '0')}`;
+    await newPackage.update({ packageCode: formattedCode });
     
     // Return success response
     res.status(201).json({
@@ -31,7 +35,6 @@ exports.createPackage = async (req, res, next) => {
     next(err);
   }
 };
-
 /**
  * Get Package Controller
  * Returns a specific package by ID
@@ -73,15 +76,13 @@ exports.getPackage = (req, res, next) => {
  * Get User Packages Controller
  * Returns all packages for the authenticated user
  */
-exports.getUserPackages = (req, res, next) => {
+exports.getUserPackages = async (req, res, next) => {
   try {
-    // Get user ID from authenticated user
     const userId = req.user.id;
-    
-    // Find packages by user ID
-    const packages = packageModel.findByUserId(userId);
-    
-    // Return packages data
+
+    // Await the async function
+    const packages = await packageModel.findByUserId(userId);
+
     res.status(200).json({
       success: true,
       count: packages.length,
@@ -97,7 +98,7 @@ exports.getUserPackages = (req, res, next) => {
  * Get All Packages Controller (Admin only)
  * Returns all packages in the system
  */
-exports.getAllPackages = (req, res, next) => {
+exports.getAllPackages = async (req, res, next) => {
   try {
     // Check if user is admin
     if (req.user.role !== 'admin') {
@@ -107,10 +108,9 @@ exports.getAllPackages = (req, res, next) => {
       });
     }
     
-    // Get all packages
-    const packages = packageModel.getAllPackages();
+    // Await the async function
+    const packages = await packageModel.getAllPackages();
     
-    // Return packages data
     res.status(200).json({
       success: true,
       count: packages.length,
@@ -121,7 +121,6 @@ exports.getAllPackages = (req, res, next) => {
     next(err);
   }
 };
-
 /**
  * Update Package Controller
  * Updates an existing package

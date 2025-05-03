@@ -69,7 +69,8 @@ const hashedPassword = await bcrypt.hash(password, salt);
       user: {
         id: user.id,
         email: user.email,
-        username: user.username
+        username: user.username, 
+        role: user.role
       }
     };
 
@@ -87,7 +88,8 @@ const hashedPassword = await bcrypt.hash(password, salt);
         fullName: user.fullName,
         businessName: user.businessName, 
         businessLocation: user.businessLocation,
-        isVerified: false
+        isVerified: false, 
+        role: user.role
       }
     });
   } catch (err) {
@@ -115,7 +117,7 @@ exports.signin = async (req, res, next) => {
       });
     }
 
-console.log("on signin:", user.password) 
+// console.log("on signin:", user.password) 
     // Compare password
      const isMatch = await bcrypt.compare(password, user.password);
      if (!isMatch) {
@@ -130,7 +132,8 @@ console.log("on signin:", user.password)
       user: {
         id: user.id,
         email: user.email,
-        username: user.username
+        username: user.username, 
+        role: user.role
       }
     };
 
@@ -151,7 +154,8 @@ res.status(201).json({
     fullName: userData.fullName,
     businessName: userData.businessName, 
     businessLocation: userData.businessLocation,
-    isVerified: userData.isVerified
+    isVerified: userData.isVerified, 
+    role: userData.role
   }
 });
   } catch (err) {
@@ -191,7 +195,8 @@ exports.getProfile = async (req, res, next) => {
         businessName: user.businessName,
         businessLocation: user.businessLocation,
         createdAt: user.createdAt,
-        isVerified: user.isVerified
+        isVerified: user.isVerified, 
+        role: user.role
       }
     });
   } catch (err) {

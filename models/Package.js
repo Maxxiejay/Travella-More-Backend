@@ -13,6 +13,11 @@ const Package = sequelize.define('Package', {
     primaryKey: true,
     autoIncrement: true
   },
+  packageCode: {
+  type: DataTypes.STRING,
+  unique: true,
+  allowNull: true
+},
   // Pickup Information
   pickupAddress: {
     type: DataTypes.TEXT,
@@ -75,9 +80,15 @@ const Package = sequelize.define('Package', {
   
   // Status
   status: {
-    type: DataTypes.ENUM('pending', 'shipped', 'delivered', 'cancelled'),
+    type: DataTypes.ENUM('pending', 'in_transit', 'delivered', 'cancelled'),
     defaultValue: 'pending'
-  }
+  }, 
+  cost: {
+    type: DataTypes.INTEGER,
+  }, 
+  usedWithSubscription: {
+    type: DataTypes.BOOLEAN
+  } 
 }, {
   timestamps: true
 });
