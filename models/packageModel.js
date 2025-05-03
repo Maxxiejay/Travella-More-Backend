@@ -5,6 +5,8 @@
 
 const { Sequelize, Op } = require('sequelize');
 const { Package } = require('./index');
+const User = require('./User'); 
+
 
 /**
  * Create a new package
