@@ -82,7 +82,13 @@ const Package = sequelize.define('Package', {
   status: {
     type: DataTypes.ENUM('pending', 'in_transit', 'delivered', 'cancelled'),
     defaultValue: 'pending'
-  }
+  }, 
+  cost: {
+    type: DataTypes.INTEGER,
+  }, 
+  usedWithSubscription: {
+    type: DataTypes.BOOLEAN
+  } 
 }, {
   timestamps: true
 });

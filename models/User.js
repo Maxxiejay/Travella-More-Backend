@@ -69,7 +69,19 @@ const User = sequelize.define('User', {
   role: {
     type: DataTypes.ENUM('user', 'admin'),
     defaultValue: 'user'
-  }
+  }, 
+  subscriptionStatus: {
+  type: DataTypes.STRING, // 'none' | 'active'
+  defaultValue: 'none',
+},
+subscriptionExpiresAt: {
+  type: DataTypes.DATE,
+  allowNull: true,
+},
+discountUsed: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+}
 }, {
   timestamps: true, 
 });

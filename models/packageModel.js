@@ -87,7 +87,12 @@ const findByUserId = async (userId) => {
 const getAllPackages = async () => {
   try {
     const packages = await Package.findAll({
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']], 
+      include: [{
+    model: User,
+    as: 'user', 
+    attributes: ['fullName', 'businessName', 'email'] // adjust field names as needed
+  }] 
     });
     return packages.map(pkg => pkg.toJSON());
   } catch (error) {
