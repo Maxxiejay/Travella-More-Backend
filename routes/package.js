@@ -54,4 +54,18 @@ router.put('/:id', [authMiddleware, validatePackageId, validateUpdatePackage], p
  */
 router.delete('/:id', [authMiddleware, validatePackageId], packageController.deletePackage);
 
+/**
+ * @route   POST /api/packages/paystack/webhook
+ * @desc    Paystack Webhook to confirm payment
+ * @access  Public
+ */
+router.post('/paystack/webhook', packageController.handlePaystackWebhook);
+
+/**
+ * @route   POST /api/packages/:id/pay
+ * @desc    Initialize Paystack payment for a package
+ * @access  Private
+ */
+router.post('/:id/pay', authMiddleware, validatePackageId, packageController.initiatePackagePayment);
+
 module.exports = router;
