@@ -7,6 +7,7 @@ require('dotenv').config();
 const { sequelize } = require('../config/database');
 const User = require('./User');
 const Package = require('./Package');
+const Subscription = require('./Subscription');
 
 // Define relationships if not already defined in individual model files
 // User.hasMany(Package, { foreignKey: 'userId', as: 'packages' });
@@ -28,5 +29,6 @@ module.exports = {
   sequelize,
   User,
   Package,
+  Subscription,
   syncDatabase
 };
