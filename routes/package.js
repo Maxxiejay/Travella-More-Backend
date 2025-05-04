@@ -17,7 +17,7 @@ const {
  * @desc    Create a new package
  * @access  Public (Optional: Private with authentication)
  */
-router.post('/', validateCreatePackage, packageController.createPackage);
+router.post('/', [authMiddleware, validateCreatePackage], packageController.createPackage);
 
 /**
  * @route   GET /api/packages/:id

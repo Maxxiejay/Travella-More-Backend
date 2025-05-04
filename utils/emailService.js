@@ -191,16 +191,6 @@ const sendVerificationEmail = async (
 const sendTestEmail = async (toEmail) => {
   try {
     const transporter = createTransporter();
-
-    // Log email config for debugging
-    console.log("Email configuration:", {
-      host: config.email.host,
-      port: config.email.port,
-      secure: config.email.secure,
-      user: config.email.user ? "****" : undefined, // Hide actual credentials
-      from: config.email.from,
-    });
-
     const mailOptions = {
       from: `"${config.appName}" <${config.email.from}>`,
       to: toEmail,
@@ -218,7 +208,6 @@ const sendTestEmail = async (toEmail) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Test email sent: ${info.messageId}`);
 
     if (config.nodeEnv !== "production") {
       console.log(`Email preview URL: ${nodemailer.getTestMessageUrl(info)}`);

@@ -6,6 +6,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 const bcrypt = require('bcrypt');
+const Subscription = require('./Subscription'); // Import Subscription model
 
 const User = sequelize.define('User', {
   id: {
@@ -85,5 +86,6 @@ discountUsed: {
 }, {
   timestamps: true, 
 });
-
+User.hasOne(Subscription, { foreignKey: 'userId', as: 'subscription' });
+Subscription.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 module.exports = User;

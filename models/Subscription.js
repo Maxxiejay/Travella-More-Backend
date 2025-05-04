@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const User = require('./User'); 
 
 const Subscription = sequelize.define('Subscription', {
   planName: {
@@ -19,5 +18,5 @@ const Subscription = sequelize.define('Subscription', {
   },
 });
 
-Subscription.belongsTo(User);
-User.hasMany(Subscription);
+
+module.exports = Subscription;
